@@ -6,8 +6,8 @@ package com.tc.enums;
  * @description：英雄类型
  **/
 public enum TypeEnum {
-    warrior(1, "武将"),
-    master(2, "军师");
+    WARRIOR(1, "武将"),
+    MASTER(2, "军师");
 
     private int value;
     private String des;

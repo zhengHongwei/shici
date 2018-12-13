@@ -1,10 +1,14 @@
 package com.tc.entity;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.tc.abs.AbstractHero;
 import com.tc.enums.ArmEnum;
 import com.tc.enums.CardTypeEnum;
 import com.tc.enums.EndowmentTypeEnum;
 import com.tc.enums.TypeEnum;
+
+import java.util.UUID;
 
 /**
  * @author zhenghongwei943
@@ -27,7 +31,7 @@ public class Hero extends AbstractHero {
     /**
      * 英雄类型
      */
-    private TypeEnum type = TypeEnum.warrior;
+    private TypeEnum type = TypeEnum.WARRIOR;
     /**
      * 资质
      */
@@ -46,22 +50,22 @@ public class Hero extends AbstractHero {
 
     /**
      * 构造参数
+     *
      * @param id
-     * @param name 名字
-     * @param level 级别
-     * @param cardType 卡片类型
-     * @param type 英雄类型
+     * @param name      名字
+     * @param level     级别
+     * @param cardType  卡片类型
+     * @param type      英雄类型
      * @param endowment 资质
-     * @param arm 兵种类型
-     * @param maxImage 大图
-     * @param minImage 小图
+     * @param arm       兵种类型
+     * @param maxImage  大图
+     * @param minImage  小图
      */
     public Hero(Long id, String name, Integer level,
                 CardTypeEnum cardType, TypeEnum type,
-                EndowmentTypeEnum endowment,ArmEnum arm,
-                String maxImage,String minImage) {
+                EndowmentTypeEnum endowment, ArmEnum arm,
+                String maxImage, String minImage) {
         this.id = id;
-        this.level = level;
         this.name = name;
         this.cardType = cardType;
         this.type = type;
@@ -72,9 +76,65 @@ public class Hero extends AbstractHero {
         init(level, cardType.getValue(), type.getValue(), endowment.getValue());
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public CardTypeEnum getCardType() {
+        return cardType;
+    }
+
+    public void setCardType(CardTypeEnum cardType) {
+        this.cardType = cardType;
+    }
+
+    public TypeEnum getType() {
+        return type;
+    }
+
+    public void setType(TypeEnum type) {
+        this.type = type;
+    }
+
+    public EndowmentTypeEnum getEndowment() {
+        return endowment;
+    }
+
+    public void setEndowment(EndowmentTypeEnum endowment) {
+        this.endowment = endowment;
+    }
+
+    public String getMaxImage() {
+        return maxImage;
+    }
+
+    public void setMaxImage(String maxImage) {
+        this.maxImage = maxImage;
+    }
+
+    public String getMinImage() {
+        return minImage;
+    }
+
+    public void setMinImage(String minImage) {
+        this.minImage = minImage;
+    }
 
     /**
      * 根据等级初始化英雄攻击、防御、血量、速度参数
+     *
      * @param level
      * @param cardType
      * @param type
@@ -87,24 +147,24 @@ public class Hero extends AbstractHero {
             ce = ce + (int) (50 * Math.pow(1.5, level - 2));
         }
         //攻击初始化
-        if (TypeEnum.warrior.getValue() == type) {
-            this.ma = 13;
+        if (TypeEnum.WARRIOR.getValue() == type) {
+            this.ma = 20;
             this.la = 0;
-            this.mr = 6;
-            this.lr = 4;
+            this.mr = 5;
+            this.lr = 5;
+            this.speed = 5;
+            this.blood = 100;
+        } else if (TypeEnum.MASTER.getValue() == type) {
+            this.ma = 5;
+            this.la = 15;
+            this.mr = 5;
+            this.lr = 5;
             this.speed = 5;
             this.blood = 80;
-        }else if(TypeEnum.master.getValue() == type){
-            this.ma = 5;
-            this.la = 13;
-            this.mr = 3;
-            this.lr = 3;
-            this.speed = 5;
-            this.blood = 60;
         }
         this.currentExp = ce;
         this.totalExp = ce;
-        this.heroUpgrade(level,true);
+        this.heroUpgrade(level-1, true);
     }
 
 
@@ -113,27 +173,32 @@ public class Hero extends AbstractHero {
     }
 
     @Override
-    public void  heroUpgrade(Integer exp, boolean flag) {
+    public void heroUpgrade(Integer exp, boolean flag) {
         int radio = 0;
         if (flag) {
             radio = exp;
         } else {
-             int nowExp = this.currentExp + exp;
-             while (true){
-                 int nextLevel = this.level+1;
-                 int nextExp = 50 * (int)(Math.pow(1.5,nextLevel-2));
-             }
-
-            //while ((exp + this.currentExp)> (this.level-1)*50 * ()(Math.pow(1.5d,this.level-1)) ){}
+            int nowExp = this.currentExp + exp;
+            while (true) {
+                int nextLevel = this.level + 1;
+                int nextExp = 50 * (int) (Math.pow(1.5, nextLevel - 2));
+                if ((nowExp - nextExp) >= 0) {
+                    this.totalExp += nextExp;
+                    radio++;
+                } else {
+                    this.currentExp = nowExp;
+                    break;
+                }
+            }
         }
         this.level = this.level + radio;
-        if (this.type.equals(TypeEnum.warrior)) {
+        if (this.type.equals(TypeEnum.WARRIOR)) {
             this.ma = this.ma + radio * cardType.getValue() * endowment.getValue() * 4;
             this.mr = this.mr + radio * cardType.getValue() * endowment.getValue() * 2;
             this.lr = this.mr + radio * cardType.getValue() * endowment.getValue() * 2;
             this.speed = this.speed + radio * (cardType.getValue() + endowment.getValue());
             this.blood = this.blood + radio * cardType.getValue() * endowment.getValue() * 10;
-        } else if (this.type.equals(TypeEnum.master)) {
+        } else if (this.type.equals(TypeEnum.MASTER)) {
             this.la = this.ma + radio * cardType.getValue() * endowment.getValue() * 4;
             this.mr = this.mr + radio * cardType.getValue() * endowment.getValue();
             this.lr = this.mr + radio * cardType.getValue() * endowment.getValue();
@@ -148,7 +213,9 @@ public class Hero extends AbstractHero {
     }
 
     public static void main(String[] args) {
-        //int a= 1 +3/5;
-        System.out.println(Math.pow(1.2, 0));
+        Hero hero = new Hero(System.currentTimeMillis(),"潘凤",2,CardTypeEnum.BLUE,
+                TypeEnum.WARRIOR,EndowmentTypeEnum.STRONG,ArmEnum.QI_BING,null,null);
+        String str = JSONObject.toJSON(hero).toString();
+        System.out.println(str);
     }
 }

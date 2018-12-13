@@ -7,7 +7,7 @@ package com.tc.enums;
  **/
 public enum EndowmentTypeEnum {
     WEEK(2, "裨将"),
-    strong(4, "上将"),
+    STRONG(4, "上将"),
     VIOLET(8, "虎将"),
     ORANGE(16, "神将");
 
